@@ -1,28 +1,35 @@
 <?php
-if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-    header($_SERVER["SERVER_PROTOCOL"] . " 405 Method Not Allowed", true, 405);
-    include '405.php';
-    exit;
-}
-
-$username = $_POST['username'];
-$password = $_POST['password'];
-
+session_start();
 require 'database.php';
 
-$sql = "SELECT * FROM User WHERE username = '$username' ";
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
 
-$result = mysqli_query($conn, $sql);
+    // Retrieve user from the database based on the entered username
+    $sql = "SELECT * FROM User WHERE username = '$username'";
+    $result = $conn->query($sql);
 
-$user = mysqli_fetch_assoc($result);
+    if ($result->num_rows === 1) {
+        $row = $result->fetch_assoc();
+        $storedPassword = $row['password'];
 
-if ($user['password'] === $_POST['password']) {
+        // Verify the entered password against the stored password
+        if (password_verify($password, $storedPassword)) {
+            // Authentication successful
+            $_SESSION['user_id'] = $row['id'];
+            $_SESSION['username'] = $row['username'];
 
-    session_start();
-
-    $_SESSION['isIngelogd'] = true;
-    $_SESSION['username'] = $user['username'];
+            // Redirect the user to the home page or any other authenticated page
+            header("Location: homepage.php");
+            exit();
+        } else {
+            // Invalid password
+            echo "Invalid username or password.";
+        }
+    } else {
+        // User not found
+        echo "Invalid username or password.";
+    }
 }
-
- 
 ?>

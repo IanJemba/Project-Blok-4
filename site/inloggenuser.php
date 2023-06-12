@@ -1,19 +1,14 @@
-<?php
-
-require 'database.php';
-
-
-
-?>
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
 </head>
-
 <body>
-    <h2>Login Form</h2>
+    <h1>Login</h1>
+
     <form action="verwerk-inloggen.php" method="POST">
         <label for="username">Username:</label>
         <input type="text" id="username" name="username" required><br><br>
@@ -21,8 +16,7 @@ require 'database.php';
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" required><br><br>
 
-        <button type="submit">Login</button>
+        <input type="submit" value="Login">
     </form>
 </body>
-
 </html>
