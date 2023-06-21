@@ -4,7 +4,6 @@ require 'database.php';
 // Check if the form is submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['first_name'])) {
-        // Process user registration
         $firstName = $_POST['first_name'];
         $middleName = $_POST['middle_name'];
         $lastName = $_POST['last_name'];
@@ -21,33 +20,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-        // Insert user data into User table
         $sql = "INSERT INTO User (voor_name, tussenvoessels, achter_name, geslacht, email, username, password, huisnummer, postcode, straat, land, telefoonnummer)
                 VALUES ('$firstName', '$middleName', '$lastName', '$gender', '$email', '$username', '$hashed_password', '$houseNumber', '$postcode', '$street', '$country', '$phoneNumber')";
 
         if (mysqli_query($conn, $sql)) {
             $userId = mysqli_insert_id($conn);
 
-            // Handle additional data based on the selected role
+            // Extra data;
             switch ($role) {
                 case 'Administrator':
                     $datum = $_POST['datum'];
 
-                    // Insert data into Admin table
                     $adminSql = "INSERT INTO Admin (admin_id, in_dienst, id) VALUES (NULL, '$datum', $userId)";
                     mysqli_query($conn, $adminSql);
                     break;
                 case 'Manager':
                     $department = $_POST['department'];
 
-                    // Insert data into Manager table
                     $managerSql = "INSERT INTO Manager (department, aantal_managers, id) VALUES ('$department', NULL, $userId)";
                     mysqli_query($conn, $managerSql);
                     break;
                 case 'Regular':
                     $datum = $_POST['datum'];
 
-                    // Insert data into Regular table
                     $regularSql = "INSERT INTO Regular (user_id, datum, id) VALUES (NULL, '$datum', $userId)";
                     mysqli_query($conn, $regularSql);
                     break;
@@ -57,10 +52,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             echo "Registration successful!";
-            header("Location: inloggenuser.php");
+            // header("Location: inloggenuser.php");
             exit();
-        
-       
+        } else {
+            echo "Error: " . mysqli_error($conn);
         }
     } elseif (isset($_POST['name'])) {
         // Process contact registration
@@ -79,8 +74,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 VALUES ('$name', '$gender', '$street', '$houseNumber', '$postcode', '$country', '$phone', '$note', '$addDate')";
 
         if (mysqli_query($conn, $sql)) {
-            
             header("location: contact-overzicht.php");
+            exit();
+        } else {
+            echo "Error: " . mysqli_error($conn);
         }
     }
 }

@@ -14,23 +14,46 @@ $managerSql = "SELECT U.*, M.department FROM User U INNER JOIN Manager M ON U.id
 $managerResult = mysqli_query($conn, $managerSql);
 $managers = mysqli_fetch_all($managerResult, MYSQLI_ASSOC);
 
+// Calculate the count of managers
+$total_managers = count($managers);
+
 // Fetch all regular users from the Regular table
 $regularSql = "SELECT U.*, R.datum FROM User U INNER JOIN Regular R ON U.id = R.id";
 $regularResult = mysqli_query($conn, $regularSql);
 $regularUsers = mysqli_fetch_all($regularResult, MYSQLI_ASSOC);
+
+// Calculate the count of regular users
+$total_regular_users = count($regularUsers);
 
 // Fetch all administrators from the Admin table
 $adminSql = "SELECT U.*, A.in_dienst FROM User U INNER JOIN Admin A ON U.id = A.id";
 $adminResult = mysqli_query($conn, $adminSql);
 $administrators = mysqli_fetch_all($adminResult, MYSQLI_ASSOC);
 
+// Calculate the count of administrators
+$total_administrators = count($administrators);
+
+$search = isset($_GET['search']) ? $_GET['search'] : '';
+$sort = isset($_GET['sort']) ? $_GET['sort'] : '';
+
+// Modify the SQL query based on the search and sort options
+$sql = "SELECT * FROM User WHERE voor_name LIKE '%$search%' OR achter_name LIKE '%$search%'";
+
+if ($sort === 'name') {
+    $sql .= " ORDER BY voor_name ASC";
+} else if ($sort === 'date_added') {
+    $sql .= " ORDER BY id ASC";
+}
+
+
 ?>
+
 <!DOCTYPE html>
 <html>
 
 <head>
     <title>User Overzicht</title>
-   <link rel="stylesheet" href="layout.css">
+    <link rel="stylesheet" href="layout.css">
 </head>
 
 <body>
@@ -41,12 +64,28 @@ $administrators = mysqli_fetch_all($adminResult, MYSQLI_ASSOC);
 
         <div class="statistics">
             <h2>Statistieken</h2>
-            <p>Totaal aantal gebruikers: <?php echo $total_users; ?></p>
+            <p>In totaal hebben wij: <?php echo $total_users; ?> geregistreerde gebruikers.</p>
+            <p>Geregistreerde gebruikers per soort gebruiker:</p>
+            <ul>
+                <li>Administrators: <?php echo $total_administrators; ?></li>
+                <li>Managers: <?php echo $total_managers; ?></li>
+                <li>Regular Users: <?php echo $total_regular_users; ?></li>
+            </ul>
         </div>
 
+        <form method="GET">
+            <input type="text" name="search" placeholder="Search by name">
+            <select name="sort">
+                <option value="">Sort by</option>
+                <option value="name">Name</option>
+                <option value="date_added">Date Added</option>
+            </select>
+            <button type="submit">Search & Sort</button>
+        </form>
+
         <div class="users-section">
-        <h2>Administrators</h2>
-        <table>
+            <h2>Administrators</h2>
+            <table>
                 <tr>
                     <th>ID</th>
                     <th>Voornaam</th>
@@ -80,8 +119,8 @@ $administrators = mysqli_fetch_all($adminResult, MYSQLI_ASSOC);
                     </tr>
                 <?php } ?>
             </table>
-            <h2>Managers</h2>
 
+            <h2>Managers</h2>
             <table>
                 <tr>
                     <th>ID</th>
@@ -118,7 +157,6 @@ $administrators = mysqli_fetch_all($adminResult, MYSQLI_ASSOC);
             </table>
 
             <h2>Regular Users</h2>
-
             <table>
                 <tr>
                     <th>ID</th>
@@ -153,12 +191,7 @@ $administrators = mysqli_fetch_all($adminResult, MYSQLI_ASSOC);
                     </tr>
                 <?php } ?>
             </table>
-
-            
-
-           
         </div>
-    </div>
 
     <?php include 'footer.php'; ?>
 </body>
